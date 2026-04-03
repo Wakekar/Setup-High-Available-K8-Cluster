@@ -1,1 +1,60 @@
+🚀 HA Kubernetes Cluster (Updated Script)
+
+🔹 Step 1: Load Balancer Node (HAProxy)
+
+-----------------------------------------------------------------------------------------------------
+
+sudo apt-get update
+sudo apt-get install -y haproxy
+
+sudo nano /etc/haproxy/haproxy.cfg
+
+--------------------------------------------------------------------------------------------------------
+
+✅ Updated Config (3 Masters)
+
+---------------------------------------------------------------------------------------------------------
+
+frontend kubernetes-frontend
+    bind *:6443
+    option tcplog
+    mode tcp
+    default_backend kubernetes-backend
+
+backend kubernetes-backend
+    mode tcp
+    balance roundrobin
+    option tcp-check
+    server master1 <MASTER1_IP>:6443 check
+    server master2 <MASTER2_IP>:6443 check
+    server master3 <MASTER3_IP>:6443 check
+------------------------------------------------------------------------------------------------------
+
+sudo systemctl restart haproxy
+
+--------------------------------------------------------------------------------------------
+
+🔹 Step 2: Prepare ALL Nodes (Masters + Workers)
+✅ Disable Swap + Kernel Config (NEW - REQUIRED)
+
+------------------------------------------------------------------------------------------------
+
+sudo swapoff -a
+sudo sed -i '/ swap / s/^/#/' /etc/fstab
+
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+
+sudo modprobe overlay
+sudo modprobe br_netfilter
+
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+EOF
+
+sudo sysctl --system
 
