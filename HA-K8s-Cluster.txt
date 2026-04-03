@@ -7,7 +7,7 @@
 sudo apt-get update
 sudo apt-get install -y haproxy
 
-sudo nano /etc/haproxy/haproxy.cfg
+sudo vi /etc/haproxy/haproxy.cfg
 
 --------------------------------------------------------------------------------------------------------
 
